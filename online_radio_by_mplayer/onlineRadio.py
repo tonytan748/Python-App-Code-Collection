@@ -28,12 +28,12 @@ while isSelect==False:
 	a=raw_input('Please select which radio you want listen?')
 	if a:
 		print a
-		if int(a) in range(len(x)):
+		if a.upper() == 'EXIT':
+			sys.exit(0)
+		elif int(a) in range(len(x)):
 			items=x[int(a)]
 			select_radio=radio_list[items]
 			print select_radio
 			os.system(select_radio)
 			isSelect=True
-		elif a.upper() == 'EXIT':
-			sys.exit(0)
 
