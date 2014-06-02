@@ -1,0 +1,442 @@
+第2章 语法最佳实践--低于类级
+2.1列表推导
+     [i for i in range(10) if i % 2 == 0]
+
+     seq=['one','two','three']
+     for i, elements in enumerate(seq):
+          seq[i]='%d: %s' % (i,seq[i])
+     重构：
+     def _treatment(pos,element):
+          return '%d: %s' % (pos,element)
+     [_treatment(i,el) for i,el in enumerate(seq)]
+
+2.2迭代器和生成器
+     next     返回容器的下一个项目
+     __iter__     返回迭代器本身
+     2.2.1生成器
+          yield     暂停一个函数并返回中间结果
+          eg:
+               def fibonacci():
+                    a,b=0,1
+                    while True:
+                         yield b
+                         a,b=b,a+b
+          yield提供于next方法调用的代码进行交互。yield将变成一个表达式，而值可以通过send方法传递
+     def psychologist():
+          print 'please tell me your problems'
+          while True:
+               answer=(yield)
+               if answer:
+                    if answer.endswith('?'): print 'don\'t ask yourself too much questions'
+                    elif 'good' in answer: print 'a that\'s good, go on'
+                    elif 'bad' in answer: print 'Don't be so negative'
+     free=psychologist()
+     free.next()
+     free.send('i feel bad')
+     free.send('are you ok?')
+     
+     throw 函数允许用户端代码传入要抛处的任何类型的异常
+     close 与throw相同，但会抛处一个特定异常 GeneratorExit
+     2.2.2协同程序 能够挂起，恢复， 并且有多个进入点的函数,python中为线程
+     2.2.3生成器表达式
+         iter=(x**2 for x in range(10) if x % 2 == 0)
+         for el in iter: print el
+    2.2.4 itertools模块
+         1.islice    窗口迭代器
+              import itertools
+              def starting_at_five():
+                   value=raw_input().strip()
+                   while value != '':
+                        for el in itertools.islice(value.split(),4,None):
+                             yield el
+                        value=raw_input().strip()
+         2.tee    往返式的迭代器    在一个序列之上运行多个迭代的模式
+              import itertools
+             def with_head(iterable,headsize=1):
+                   a,b=itertools.tee(iterable)
+                   return list(itertools.islice(a,headsize)),b
+         3.groupby    uniq迭代器
+         4.其他函数
+
+2.3装饰器    
+    2.3.1如何编写装饰器
+         编写一个函数，返回封装原始函数调用的一个子函数
+         当装饰器需要参数时，必须使用第二级封装
+    常见装饰器模式
+    2.3.2参数检查
+    2.3.3缓存
+    2.3.4代理
+    2.3.5上下文提供者
+
+2.4 with 和 contextlib
+    2.4.1contextlib模块
+         辅助类contextmanager，包含以yield语句分开的__enter__和__exit__两部分的生成器
+         辅助类closing(element)    输出一个元素后，然后在退出时调用该元素的close方法
+         辅助类nested(context1,context2,...)    合并上下文并使用他们创建嵌套的with调用的函数
+    2.4.2上下文实例
+         
+
+第3章    语法最佳实践--类级
+3.1子类化内建类型
+3.2访问超类中的方法    super
+    3.2.1理解python的方法解析顺序
+    3.2.2super的缺陷
+         1.混用super和传统调用
+         2.不同种类的参数
+3.3最佳实践
+    避免多重继承
+    super的使用必须一致
+    不要混用老式和新式的类
+    调用父类时必须检查类层次
+3.4描述符和属性
+    3.4.1描述符
+         方法：
+             __set__
+             __get__
+             __delete__
+         这些方法将在__dict__特性之前被调用
+         1.内省描述符
+              
+         2.元描述符
+    3.4.2属性property
+         属性采用fget参数和3个可选参数fset,fdel,doc.
+3.5槽
+    使用__slots__特性为指定类设着一个静态特性列表，并跳过每个类实例中__dict__列表的创建工作
+
+3.6远编程
+    3.6.1    __new__方法
+         __new__方法必须返回一个类实例，因此它可以在对象创建之前或之后修改类。有助于确保对象构造程序不会被设置成一个不希望的状态或添加一个不能被构造程序删除的初始化。
+         网络套接字或数据库初始化应该在__new__中而不是__init__中控制
+    3.6.2    __metaclass__方法
+         在类级别上运行
+         可以在调用type之前或之后与类创建交互
+
+3.7总结
+    子类化内建类型是很好的特性，但在做之前，应确定不对现有的类型进行子类化
+    代码中应避免多重继承，用法要保持一致
+    通过描述符可自定义在一个对象上引用特性时所应该做的任务
+    属性对于构建一个公共api很好
+    元编程很强大但会影响类设计的宜读性
+
+第4章    选择好的名称
+4.1PEP8和命名最佳实践
+4.2命名风格
+     4.2.1变量
+          1.常量
+              使用常量时，应将其放在模块头部
+          2.命名和使用
+              将常量集中放在包中的独立文件内
+              对于表现的像标志的选项，最后将他们和布尔操作组合
+         3.公有和私有变量
+              私有变量以一个下划线开头
+              如果变量在方法内使用，只用来提供一个公共特性，或用来保持内部状态，最好声明为私有变量
+         4.2.2函数和方法     小写和下划线
+              1.私有元素 使用先导下划线
+              2.特殊的方法    以2个下划线开始和结束
+              3.参数         小写
+    4.2.3属性         小写或小写加下划线命名
+    4.2.4类    驼峰格式CamelCase    私有类前在加一个下划线
+    4.2.5模块和包         小写
+4.3命名指南
+    4.3.1使用has 或is前缀命名布尔元素    is_connected    has_cache
+    4.3.2用复数形式命名序列元素    tables    
+    4.3.3用显示的名称命名字典    person_address={}
+    4.3.4避免通用名称
+    4.3.5避免现有名称
+4.4参数最佳实践
+    4.4.1根据迭代设计构建参数
+         当附加参数时应尽可能有默认值
+    4.4.2信任参数和测试
+     4.4.3小心使用*args和**kw魔法参数
+4.5类名    使用表示其类型或特性的后缀    SQLEngine    MimeTypes    基类使用Base或Abstract前缀    BaseCookie    AbstractFormatter
+4.6模块和包名称
+4.7使用API
+    4.7.1跟踪冗长
+    4.7.2构建命名空间树
+    4.7.3分解代码
+    4.7.4使用Egg
+    4.7.5使用deprecation过程
+         class SomeClass(object):
+              def run_script(self,script,context):
+                   print 'doing the work'
+
+         import warning
+         class SomeClass(object):
+              def run_script(self,script,context):
+                   warning.warn(("'run_script' will be replaced by 'run' in version 2"),DeprecationWarning)
+                   return self.run(script,context)
+              def run(self,script,context=None):
+                   print 'doing the work'
+4.8有用的工具
+    4.8.1Pylint 元代码分析器
+         安装 easy_install logilab.pylintinstaller
+         使用    pylint bootstrap.py
+         调优Pylint    pylint --generate-rcfile > ～/.pylintrc
+    4.8.2CloneDigger
+         安装    easy_install CloneDigger
+         使用    clonedigger html_report.py ast_suppliers.py
+4.9小结
+    PEP8是命名的绝对参考
+    选择名称：     为布尔元素命名时使用'has'或'is'前缀，为序列元素命名时使用复数，避免使用通用名称，避免遮蔽现有名称
+    对于参数:     根据设计来构建参数，不要使用断言实现静态类型检查，不要误用*args和**kw
+    使用API:    跟踪冗长，根据设计构建命名空间树，将代码分为小块，为程序库在一个公共命名空间下使用egg,使用deprecation过程
+    使用Pylint和CloneDigger控制代码
+
+第5章    编写包
+5.1用于所有包的公共模式
+     命名空间包组织发行并通过distutils和setuptools分发。setup.py定义distutils模块中描述的所有元数据
+     1.sdist     创建发行树     python setup.py sdist
+     2.MANIFEST.in文件     在此指出sdist包含的文件
+     3.build和bdist     编译包
+     4.bdist_egg     创建一个二进制分发版本
+     5.install     将包安装到python中
+     6.如何卸载一个包     删除包所创建的文件，然后删除sitepackages文件夹中easy-install.pth文件所列举的所有引用
+     7.develop     编译并安装包，并添加一个链接到python site-packages文件夹中
+     8.test     提供一种执行包中所有测试的方法
+     9.register和upload     分发包
+     10.python2.6中.pypirc的格式
+     11.创建新命令
+     12.setup.py使用小结    a.创建一个包     b.安装包     c.注册并上传到pypi服务器
+     13.alias命令     为制定的命令组合创建别名
+     14.其他重要元数据     description 包的简单描述     long_description 包的完整描述     keywords 定义包的关键字列表     author 作者的姓名或组织     url 项目url     license 许可证     packages 包中所有名称的列表     namespace_packages 命名空间包的一个列表
+5.2基于模板的方法
+     5.2.1Python Paste
+     5.2.2创建模板
+5.3创建包模板
+     1.创建新包结构     mkdir -p pdp.skels/pdp/skels          find pdp.skels
+     2.在pdp文件夹下创建__init__.py
+               try:
+                    __import__('pkg_resources').declare_namespace(__name__)
+               except ImportError:
+                    from pkgutil import extend_path
+                    __path__=extend_path(__path__,__name__)
+     3.使用元数据在根目录中创建setup.py文件
+     4.在pbp/skels中的package模板写入package类
+     5.创建tmpl/package目录，并将acme.sql目录内容复制过来
+     6.针对文件夹名称而使用的变量值，加上'+'前缀和后缀
+5.4开发周期
+     1.版本号
+     2.每晚构建
+5.5小结
+     如何创建一个命名空间包
+     setup.py的主要任务，以及如何使用它建立和发行包
+     基于模板生成包框架的方法
+     剪贴本的工作原理及创建包框架的方法
+     如何发行包及提供每夜构建版本
+
+第6章    编写一个应用程序
+6.1Atomisator概述
+6.2整体描述
+6.3工作环境
+     6.3.1添加一个测试运行程序
+     6.3.2添加包结构
+6.4编写各个包
+     6.4.1atomisator.parser
+          1.创建初始包
+          2.创建初始doctest
+          3.构建测试环境
+          4.编写代码
+     6.4.2atomisator.db
+          1.SQLAlchemy
+          2.创建映射
+          3.提供API
+     6.4.3atomisator.feed
+     6.4.4atomisator.main
+6.5分发Atomisator
+6.6包之间的依赖性
+6.7小结
+
+第7章     使用zc.buildout
+7.1zc.buildout原理
+     7.1.1配置文件结构
+          1.最小的配置文件
+          2.[buildout]小节选项
+     7.1.2buildout命令
+     7.1.3recipe
+          1.著名的recipe
+          2.创建recipe
+     7.1.4Atomisator buildout环境
+          1.创建一个buildout文件夹结构
+          2.初始化buildout
+     7.1.5更进一步
+7.2发行与分发
+     7.2.1发行包
+     7.2.2添加一个发行配置文件
+     7.2.3构建和发行应用程序
+7.3小结
+     可以用来构建基于egg的应用程序
+     知道如何聚集egg以构建一个独立环境
+     链接recipe一构建一个脚本
+
+第8章     代码管理
+8.1版本控制系统
+     8.1.1集中式系统
+     8.1.2分布式系统
+     8.1.3集中还是分布
+     8.1.4Mercurial
+     8.1.5使用Mercurial进行项目管理
+          1.建立文件夹
+          2.配置hgwebdir
+          3.安装Apache
+          4.设置权限
+          5.设置客户端
+8.2持续集成
+8.3小结
+
+第9章     生命周期管理
+9.1不同的方法
+     9.1.1瀑布开发模型
+     9.1.2螺旋开发模型
+     9.1.3迭代开发模型
+9.2定义生命周期
+     9.2.1计划
+     9.2.2开发
+     9.2.3整体调试
+     9.2.4发行
+9.3建立一个跟踪系统
+     9.3.1Trac
+     
+9.4小结
+
+第10章     编写项目文档
+10.1技术性写作7规则
+     10.1.1分两步编写
+     10.1.2以读者为目标
+     10.1.3使用简单的风格
+     10.1.4限制信息范围
+     10.1.5使用真实的代码示例
+     10.1.6保持简单，够用即可
+     10.1.7使用模板
+10.2reStructuredText入门
+10.3构建文档
+     1.设计
+     2.公用的模板
+     3.使用
+     4.操作
+10.4建立自己的工作集
+     构件景观
+     1.作者的布局
+     2.读者的布局
+          (1)建立索引页面
+          (2)注册模块帮助
+          (3)添加index标志
+          (4)交叉引用
+10.5小结
+     使用几条规则高效编写文档
+     使用python风格LaTeX
+     构建一个文档工作集和文档景观
+     使用Sphinx生成web文档
+
+第11章     测试驱动开发
+11.1不测试
+     11.1.1测试驱动开发原理
+          1.避免软件退化
+          2.增进代码质量
+          3.提供最好的低层级文档
+          4.更快产生健壮代码
+     11.1.2哪一类测试
+          1.验收测试
+          2.单元测试
+          3.pyhton标准测试工具     unittest     doctest
+11.2测试
+     11.2.1Unittest的缺陷
+     11.2.2Unittest替代品
+          1.nose
+               (1)测试运行程序
+               (2)编写测试
+               (3)编写测试装置
+               (4)与setuptools和插件系统集成
+               (5)总结
+          2.py.test
+               (1)禁用测试类
+               (2)自动分发测试
+               (3)立即开始测试
+               (4)总结
+     11.2.3仿真和模拟
+          1.建立一个仿真品
+          2.使用模拟
+     11.2.4文档驱动开发
+          编写一个故事
+11.3小结
+     unittest的缺点
+     第3方工具nose 和 py.test
+     如何构建仿真和模拟
+     文档驱动开发
+
+第12章     优化：通用原则和剖析技术
+12.1优化3原则
+     12.1.1首先使它能正常工作
+     12.1.2从用户的观点进行
+     12.1.3保持代码易读
+12.2优化策略
+     12.2.1寻找其他原因：确定第三方服务器或资源不是问题所在
+     12.2.2度量硬件：确定资源足够用
+     12.2.3编写速度测试：创建带有速度要求的场景
+12.3查找瓶颈
+     12.3.1剖析cpu的使用情况
+          1.宏观剖析
+          2.微观剖析
+          3.测量Pystones
+     12.3.2剖析内存使用情况
+          1.python处理内存方式
+          2.剖析内存
+     12.3.3剖析网络使用情况
+12.4小结
+     优化3规则：能正常工作，从用户观点出发，保持代码易读
+     基于编写带速度要求的使用场的优化策略
+     剖析代码内存方法以及网络剖析的技巧
+
+第13章     优化：解决方案
+13.1降低复杂度
+     13.1.1测量回路复杂度
+     13.1.2测量大o记号
+     13.1.3简化
+          1.在一个列表中查找
+          2.使用一个集合代替列表
+          3.删减外部调用，降低工作负载
+          4.使用集合
+               (1)deque     带有附加功能的一种类似于列表的类型
+               (2)defaultdict     具有内建默认工厂特性的类似于dict的类型
+               (3)namedtuple     为成员分配键值的一种类似于元组的类型
+13.2多线程
+     13.2.1多线程定义
+     13.2.2python处理线程的方式
+     13.2.3什么时候使用线程
+          1.建立反应灵敏的界面
+          2.委托工作
+          3.建立多用户应用程序
+          4.简单例子
+               
+13.3多进程
+     pyprocessing
+          from processing import Process
+          import os
+          def work():
+               print os.getid()
+          ps=[]
+          for i in range(4):
+               p=Process(target=work)
+               ps.append(p)
+               p.start()
+13.4缓存
+     13.4.1确定性缓存
+     13.4.2非确定性缓存
+     13.4.3主动式缓存
+13.5小结
+     测量代码的复杂性，已经降低这种复杂性的一些方法
+     python中线程的工作方式，以及他们的适用场景
+     使用线程的简单方法
+      一些缓存理论及使用方法
+
+第14章     有用的设计模式
+14.1创建型模式     用于生成具有特定行为的对象的模式
+     单例模式     确保给定的类在应用程序中始终只存在一个实例
+14.2结构型模式     有助于针对特定使用场景的代码结构的模式
+     适配器
+     代理
+     外观
+14.3行为型模式     有助于对过程进行结构化的模式
+     观察者
+     访问者
+     模板
+14.4小结
