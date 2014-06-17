@@ -1,1 +1,1 @@
-this folder is saved the source from <<python reference manual>>
+this folder is saved the source from << python reference manual >>
