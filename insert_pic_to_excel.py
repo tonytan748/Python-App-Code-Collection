@@ -1,4 +1,9 @@
 #coding:utf-7
+#this is a code for write a jpg file to excel.
+#2 functions do different work
+#    1.change image format from .jpg to .bmp use pil.Image.open(origine_file).save(bmp_file)
+#    2.insert the pic to excel and save it. use xlwt.insert_bitmap(bmp_file,row_num,col_num)
+
 import os
 import xlwt
 from PIL import Image
