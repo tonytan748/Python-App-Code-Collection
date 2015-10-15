@@ -1,7 +1,9 @@
 Python-Monitor-for-PC
 =====================
 
-a python code for monitor PC include print desktop photo and get the camera photo when PC power on.
-  
-  
+this is a code for change jpg file to .bmp and save to a excel file.
+
+2functions
+  1 is save pic to excel use xlwt.inset_bitmap()
+  2 is change pic from .jpg to .bmp use pil.Image.open(origine_file).save(bmp_file)
   
