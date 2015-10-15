@@ -1,4 +1,4 @@
-#coding:utf-7
+#coding:utf-8
 #this is a code for write a jpg file to excel.
 #2 functions do different work
 #    1.change image format from .jpg to .bmp use pil.Image.open(origine_file).save(bmp_file)
